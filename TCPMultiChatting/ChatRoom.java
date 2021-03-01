@@ -90,6 +90,7 @@ public class ChatRoom {
      */
     public synchronized void broadcast(String data) {
 
+        //
         String[] filter = data.split("@");
         System.out.println(filter[0] +" 번 방에 Broadcast를 해준다.");
         String roomId = filter[0];
