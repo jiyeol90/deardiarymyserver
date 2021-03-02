@@ -14,6 +14,9 @@ public class ChatUser {
     private BufferedReader br;
     private PrintWriter pw;
 
+    //1:1 일때는 상대방 ID 설정 , 단체 채팅일때는 "ALL"로 설정
+    private String sendTo;
+
     //부재중 메시지 개수 표시
     private int stackMessage = 1;
     //유저가 참여한 방과 쌓인 메시지의 수를 담아둔다.
@@ -58,6 +61,13 @@ public class ChatUser {
     }
 
 
+    public String getSendTo() {
+        return sendTo;
+    }
+
+    public void setSendTo(String sendTo) {
+        this.sendTo = sendTo;
+    }
 
     public ChatRoom getRoom() {
         return room;

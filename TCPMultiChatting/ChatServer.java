@@ -43,12 +43,14 @@ class ChatThread extends Thread{
         this.sock = sock;
         this.roomManager = roomManager;
         //this.hm = hm;
-        this.roomManager = roomManager;
         try {
             //PrintWriter pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
             br = new BufferedReader(new InputStreamReader(sock.getInputStream(),"utf-8"));
-            initUserInfo = br.readLine(); //roomId + id값을 받는다. ex) "123@james"
+            initUserInfo = br.readLine(); //roomId + id값을 받는다. ex) "123@james@julia" [방번호]@[내아이디]@[상대방아이디]
             filter = initUserInfo.split("@");
+
+            String myId = filter[1];
+            String friendId = filter[2];
 
             //기존 방에 있는 아이디가 있는지 탐색후 없을시 저장한다.
             chatRoom = roomManager.getRoomById(Integer.parseInt(filter[0]));
@@ -58,25 +60,34 @@ class ChatThread extends Thread{
 
                 System.out.println(chatRoom.getId() + "번 방에 참여한 인원수 : " + chatRoom.getUserSize());
 
-                user = new ChatUser(filter[1]); // 유저를 생성한다. (유저도 탐색후 아이디의 유저가 없을시 생성)
+                user = new ChatUser(myId); // 유저를 생성한다. (유저도 탐색후 아이디의 유저가 없을시 생성)
                 user.setSock(sock); // 유저의 소켓을 설정한다.
-               
+
+                user.setSendTo(friendId);
                 //
                 //chatRoom.enterUser(user); // 생성된 방에 유저가 입장한다.
                 user.enterRoom(chatRoom); // 유저에 현재 입장해 있는 방을 설정한다.
                 System.out.println(chatRoom.getId() + "번 방에 참여한 인원수 (유저생성후 참여처리 후) : " + chatRoom.getUserSize());
             } else {
-            //생성한 방이 있는 경우
-            //id로 채팅방에 있는 UserList를 탐색한후 user를 저장한다.
-            
-            user = new ChatUser(filter[1]); // 유저를 생성한다. (유저도 탐색후 아이디의 유저가 없을시 생성)
-            user.setSock(sock); // 유저의 소켓을 설정한다.
-            user.enterRoom(chatRoom); // 유저에 현재 입장해 있는 방을 설정한다.
+                //생성한 방이 있는 경우 (이미 누군가가 방을 생성하고 참여하고 있다는 의미/ 유저가 한명도 참여하지 않은 방은 없다.)
+                //이 방의 상대가 내가 보내고자 하는 상대인지 판별한다.
+                //맞다면 기존 대화방에서 대화 시작.
+                System.out.println("내 아이디 : " + myId);
+                System.out.println("내가 보내려는 상대 : " + friendId);
+                System.out.println("방안의 상대가 아이디 : " + chatRoom.getUserByUserId(friendId).getUserId());
+                System.out.println("방안의 상대가 보내려는 대상 : " + chatRoom.getUserByUserId(friendId).getSendTo());
+                if(chatRoom.getUserByUserId(friendId).getSendTo().equals(myId)) {
+                    user = new ChatUser(myId);
+                    user.setSock(sock); // 유저의 소켓을 설정한다.
 
+                    user.setSendTo(friendId);
+                    user.enterRoom(chatRoom); // 유저에 현재 입장해 있는 방을 설정한다.
+                    System.out.println(chatRoom.getId() + "번 방에 입장했다. 방안의 사람수 : " + chatRoom.getUserSize());
+                }
             }
-           
-            
-            System.out.println("서버에서 한번만 실행되는 곳이다.");
+
+
+            System.out.println("서버에서 클라이언트 당 한번만 실행되는 곳이다.");
 
 
             //채팅을 처음 시작할 때
@@ -91,6 +102,9 @@ class ChatThread extends Thread{
             //위치를 바꿔준다.
             //PrintWriter pw = new PrintWriter(new OutputStreamWriter(user.getSock().getOutputStream(),"utf-8"), true);
             //roomId @ userId @ txt @ message;
+            System.out.println("ubuntu에서 개행을 처리하는 방식 :"+ System.getProperty("line.separator"));
+        
+
             String initMessage = chatRoom.getId() + "@"
                     + user.getUserId() + "@"
                     + "initConnect" + "@"
@@ -132,13 +146,14 @@ class ChatThread extends Thread{
                 else{
                     //sendMessage(message);
                     //message전달 형식 : roomId@userId@message => 해당
-                    filter = message.split("@");
+                    // filter = message.split("@");
                     System.out.println(chatRoom.getId() + "번 방에 참여한 인원수 (chatRoom.broadcast직전) : " + chatRoom.getUserSize());
-                    chatRoom.broadcast(filter[0]+"@"
-                    + filter[1] + "@"
-                    + filter[2] + "@" 
-                    + filter[3] + "@"
-                    + message);
+                    // chatRoom.broadcast(filter[0]+"@"
+                    // + filter[1] + "@"
+                    // + filter[2] + "@" 
+                    // + filter[3] + "@"
+                    // + message);
+                    chatRoom.broadcast(message);
                 }
             }
         } catch (Exception e) {
