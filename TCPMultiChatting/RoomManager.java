@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -125,6 +124,16 @@ public class RoomManager {
         roomList.remove(room); // 전달받은 룸을 제거한다.
         System.out.println("Room Deleted!");
     }
+
+    /**
+     * 전달받은 룸을 리스트에 추가
+     * @param room 추가할 룸
+     */
+    public static void addRoom(ChatRoom room) {
+        roomList.add(room);
+        System.out.println("Room Added!");
+    }
+
 
     /**
      * 방의 현재 크기를 리턴

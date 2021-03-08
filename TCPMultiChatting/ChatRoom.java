@@ -1,4 +1,3 @@
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,7 +103,7 @@ public class ChatRoom {
             System.out.println((i+1) + "번째 유저에게 보내는 메시지 " + data);
             userList.get(i).getPw().println(data);
             userList.get(i).getPw().flush();
-    
+
         }
         /*
         for (ChatUser user : userList) { // 방에 속한 유저의 수만큼 반복
@@ -116,7 +115,7 @@ public class ChatRoom {
             //          HashMap<ChatRoom, Integer> stackMessageInTheRoom = user.getStackMessageInTheRoom();
             //유저가 현재 참여하고 있는 방일 경우 쌓여있던 메시지가 없어진다.
             //if(user.getRoom().equals(this)) {
-            
+
 
                 user.getPw().println(data);
                 user.getPw().flush();
@@ -152,7 +151,7 @@ public class ChatRoom {
             //user.setStackMessage(stackMessage + 1);
 //          }
 */
-        
+
     }
 
     public void setOwner(ChatUser chatUser) {

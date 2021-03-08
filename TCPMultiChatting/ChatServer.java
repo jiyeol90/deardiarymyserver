@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.HashMap;
 
 
+
 public class ChatServer {
     public static void main(String[] args) {
         try {
@@ -34,6 +35,7 @@ class ChatThread extends Thread{
     private ChatUser user;
     private ChatRoom chatRoom;
     private RoomManager roomManager;
+    private int roomIdNumber;
     //ChatUser로 묶어준다.
     private BufferedReader br;
     HashMap<ChatRoom, Integer> stackMessageInTheRoom;
@@ -49,11 +51,65 @@ class ChatThread extends Thread{
             initUserInfo = br.readLine(); //roomId + id값을 받는다. ex) "123@james@julia" [방번호]@[내아이디]@[상대방아이디]
             filter = initUserInfo.split("@");
 
+            String roomId = filter[0];// [roomId] 혹은 [lastRoomId/roomId] 로 온다.
+            if(roomId.indexOf("lastRoomId/") == 0) {
+                roomIdNumber = Integer.parseInt(roomId.split("/")[1]);
+                roomIdNumber = roomIdNumber + 1; //생성할 방의 Id는 가져온 값보다 1 을 더해서 생성해 준다. 
+            } else {
+                roomIdNumber = Integer.parseInt(filter[0]);
+            }
+
             String myId = filter[1];
             String friendId = filter[2];
+            String roomMakeOrNot = "initConnect"; // 방을 처음 만든거면 initConnectAndMakeRoom 이라는 메시지를 보낸다.
 
             //기존 방에 있는 아이디가 있는지 탐색후 없을시 저장한다.
-            chatRoom = roomManager.getRoomById(Integer.parseInt(filter[0]));
+            //방이 존재하는 지는 이미 Android(client)에서 DB 쿼리후 결과값을 보낸다.(존재할 경우 roomId를 받는다.)
+            //없는 경우에는 모든 방중 마지막 ID를 받아온다. -> 마지막ID + 1 한 값이 내가 생성할 방의 ID가 된다.
+            //방이 있는 경우  -> [방번호]@[내아이디]@[상대방아이디]
+            //방이 없는 경우 -> [lastRoomId/마지막방번호]@[내아이디]@[상대방아이디]
+
+            //대화가 시작되고 상대방이 나갔다 다시 들어왔을때 방이 존재하는지 탐색
+            chatRoom = roomManager.getRoomById(roomIdNumber);
+            //처음 시작할땐 무조건 null
+
+            if(chatRoom == null) {
+                //방이 없는경우
+                if(roomId.indexOf("lastRoomId/") == 0) {
+                    chatRoom = new ChatRoom(roomIdNumber);
+                    roomMakeOrNot += "AndMakeRoom";
+                } else {
+                    // 방이 있는 경우 id로 방을 만들어 줘야 할때
+                    chatRoom = new ChatRoom(roomIdNumber);
+
+                }
+                //만든후 RoomManager에 알려준다.
+                roomManager.addRoom(chatRoom);
+                System.out.println("RoomManager에서 관리하고 있는 방 개수 : " + roomManager.roomCount());
+            }
+
+            //방이 있는경우 방에 존재하고 있는 유저를 찾는다.
+            user = chatRoom.getUserByUserId(myId);
+            //유저가 없는경우
+            if(user == null) {
+                user = new ChatUser(myId);
+                user.setSock(sock);
+                user.setSendTo(friendId);
+                user.enterRoom(chatRoom); // 유저에 현재 입장해 있는 방을 설정한다.
+                System.out.println(myId + " 객체를 생성하였습니다.");
+            } else {
+                System.out.println("이미 존재 하고 있는 " + myId + " 객체를 할당 합니다.");
+                user.setSock(sock);
+                user.setSendTo(friendId);
+                System.out.println(myId + " 객체의 소켓을 새것으로 교체한다.");
+            }
+
+
+            System.out.println(chatRoom.getId() + "번 방에 참여한 인원수 (유저생성후 참여처리 후) : " + chatRoom.getUserSize());
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+            //chatRoom = roomManager.getRoomById(Integer.parseInt(filter[0]));
             //생성했던 방이 없는 경우
             if(chatRoom == null) {
                 chatRoom = roomManager.createRoom(); //roomManager에서 방을 생성한다.
@@ -86,7 +142,7 @@ class ChatThread extends Thread{
                 }
             }
 
-
+*/
             System.out.println("서버에서 클라이언트 당 한번만 실행되는 곳이다.");
 
 
@@ -103,11 +159,11 @@ class ChatThread extends Thread{
             //PrintWriter pw = new PrintWriter(new OutputStreamWriter(user.getSock().getOutputStream(),"utf-8"), true);
             //roomId @ userId @ txt @ message;
             System.out.println("ubuntu에서 개행을 처리하는 방식 :"+ System.getProperty("line.separator"));
-        
+
 
             String initMessage = chatRoom.getId() + "@"
                     + user.getUserId() + "@"
-                    + "initConnect" + "@"
+                    + roomMakeOrNot + "@"
                     + filter[1] + "님이 " + filter[0] +"번 방에 접속하셨습니다.";
             chatRoom.broadcast(initMessage);
             System.out.println(chatRoom.getId() + "번 방에 참여한 인원수 : " + chatRoom.getUserSize());
@@ -150,7 +206,7 @@ class ChatThread extends Thread{
                     System.out.println(chatRoom.getId() + "번 방에 참여한 인원수 (chatRoom.broadcast직전) : " + chatRoom.getUserSize());
                     // chatRoom.broadcast(filter[0]+"@"
                     // + filter[1] + "@"
-                    // + filter[2] + "@" 
+                    // + filter[2] + "@"
                     // + filter[3] + "@"
                     // + message);
                     chatRoom.broadcast(message);
@@ -165,14 +221,14 @@ class ChatThread extends Thread{
             chatRoom = user.getRoom();
             chatRoom.exitUser(user);
 
-            broadcast(user.getUserId() + "님이 나가셨습니다.");
+            chatRoom.broadcast(user.getUserId() + "님이 나가셨습니다.");
 
 
             //Todo hm 은 사용하지 않는 방향으로 고쳐준다.
             // synchronized (hm) {
             //     hm.remove(user.getUserId());
             // }
-           // broadcast(initUserInfo +"님이 접속을 종료했습니다.");
+            // broadcast(initUserInfo +"님이 접속을 종료했습니다.");
             try {
                 if(sock != null) {
                     user.getSock().close();
