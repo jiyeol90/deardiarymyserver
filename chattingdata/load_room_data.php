@@ -16,7 +16,6 @@ if ($conn)
     $sql_search_room = "SELECT room_id , count(user_id) AS roomType FROM participate_in WHERE user_id IN ('$myId', '$friendId') GROUP BY room_id HAVING roomType = 2";
 
 
-
     $roomSearchResult = mysqli_query($conn, $sql_search_room);
     $rowCnt = mysqli_num_rows($roomSearchResult);
 
@@ -30,7 +29,7 @@ if ($conn)
         array_push($roomIdArray, $row["room_id"]);
     }
     
-       // print_r($roomIdArray); 
+        //print_r($roomIdArray); 
     for($i = 0; $i < count($roomIdArray); $i++) {
 
         //2. 해당 방 번호로 참여한 인원수를 조회하고 2명이면 나와 상대만 있는 방이므로 탐색완료.
@@ -39,12 +38,13 @@ if ($conn)
         $result = mysqli_query($conn, $sql_match_room);
         $participant = mysqli_fetch_assoc($result);
 
+        //1:1방일 경우
         if($participant['roomType'] == 2) {
             echo 'roomId@'.$roomIdArray[$i];
             exit();
         }
 
-        //echo $roomIdArray[$i].' 번 방에 참여한 인원 : '. $participant['roomType']. '   ';
+        echo $roomIdArray[$i].' 번 방에 참여한 인원 : '. $participant['roomType']. '   ';
         }
     
     }   
