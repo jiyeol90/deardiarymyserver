@@ -54,7 +54,7 @@ public class ChatUser {
         //현재 참여한 방이 없다.
         this.room = null;
         //방에 대한 메시지를 지워준다.
-        this.stackMessageInTheRoom.remove(room);
+        //this.stackMessageInTheRoom.remove(room);
         // 퇴장처리(화면에 메세지를 준다는 등)
         // ...
     }

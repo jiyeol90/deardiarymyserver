@@ -11,6 +11,7 @@ $result_message;
 //DB insert
 if ($conn)
 {
+
     //이미 참여했던 방인지 조회한다.
     //1. 먼저 나와 상대가 참여한 방을 조회한다. (나와 , 상대, 다른사람도 있는 방이 있다면 그 방도 조회된다.)
     $sql_search_room = "SELECT room_id , count(user_id) AS roomType FROM participate_in WHERE user_id IN ('$myId', '$friendId') GROUP BY room_id HAVING roomType = 2";
@@ -41,6 +42,17 @@ if ($conn)
         //1:1방일 경우
         if($participant['roomType'] == 2) {
             echo 'roomId@'.$roomIdArray[$i];
+
+            //0. 채팅방에 입장하면 user의 participate_in 테이블의 user_status 를 update 해준다.
+            $sql_participate_in_status_update = "UPDATE participate_in SET user_status = 0 WHERE user_id = '$myId' AND room_id = '$roomIdArray[$i]'";
+            $participateResult = mysqli_query($conn, $sql_participate_in_status_update);
+
+            //update를 실패할 경우 Early Return
+            if(!$participateResult) {
+                echo "user_status update fail";
+                exit();
+            }
+            
             exit();
         }
 

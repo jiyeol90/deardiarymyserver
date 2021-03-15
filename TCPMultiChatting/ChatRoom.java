@@ -52,19 +52,30 @@ public class ChatRoom {
      * @param user 내보낼 유저
      */
     public void exitUser(ChatUser user) {
+
+        String userId = user.getUserId(); 
+
+        System.out.println("[ void exitUser ]나갈 방 : " + user.getRoom().getId());
+        System.out.println("[ void exitUser ]해당 방인원  " + userList.size() + " 명");
         user.exitRoom(this);
         userList.remove(user); // 해당 유저를 방에서 내보냄
 
+        System.out.println("[ void exitUser ]해당 방에서 " + user.getUserId() + "를 내보냄");
+        System.out.println("[ void exitUser ]해당 방인원(내보낸 후)  " + userList.size() + " 명");
+
         if (userList.size() < 1) { // 모든 인원이 다 방을 나갔다면
+            System.out.println("여기 들어오면 안되는데....");
             RoomManager.removeRoom(this); // 이 방을 제거한다.
             return;
         }
 
-        if(this.roomName.equals(user.getUserId())) { //나간 유저가 방장일 경우
-            this.roomOwner = userList.get(0); // 리스트의 첫번째 유저가 방장이 된다.
-        }
+        // if(this.roomOwner.getUserId().equals(userId)) { //나간 유저가 방장일 경우
+        //     System.out.println("[1]userlist.get(0) : " + userList.get(0).getUserId());
+        //     this.roomOwner = userList.get(0); // 리스트의 첫번째 유저가 방장이 된다.
+        // }
 
         if (userList.size() < 2) { // 방에 남은 인원이 1명 이하라면
+            System.out.println("[2]userlist.get(0) : " + userList.get(0).getUserId());
             this.roomOwner = userList.get(0); // 리스트의 첫번째 유저가 방장이 된다.
             return;
         }

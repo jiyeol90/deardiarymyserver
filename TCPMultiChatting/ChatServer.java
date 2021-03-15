@@ -180,10 +180,20 @@ class ChatThread extends Thread{
         }
     }
     public void run() {
+        String message = null;
+        String roomId = "";
+        String myId = "";
+
         try {
-            String message = null;
+           
             while((message = br.readLine()) != null) {
-                if(message.equals("/quit")) {
+                if(message.contains("/&quit")) {
+                    //CHATTING_ROOM_ID + "@" + MY_ID + "@" + "txt" + "@" + "/&quit";
+                    String[] filter = message.split("@");
+                    System.out.println(filter[0] +" 번 방에 나간다고 Broadcast를 해준다.");
+                    System.out.println("message : " + message);
+                    roomId = filter[0];
+                    myId = filter[1];
                     break;
                 }
 //                if(line.indexOf("/to") == 0) {
@@ -218,10 +228,18 @@ class ChatThread extends Thread{
             //유저가 방을 나갔을때
             //1. 방을 나가고 방에 사람이 있는경우 방안의 사람들에게 종료 메시지를 뿌려준다.
             //2. 방을 나가고 방에 아무도 없는 경우 방도 지워준다.
-            chatRoom = user.getRoom();
-            chatRoom.exitUser(user);
+            System.out.println("finally 블로 으로 들어옴/");
 
-            chatRoom.broadcast(user.getUserId() + "님이 나가셨습니다.");
+            chatRoom = roomManager.getRoomById(Integer.parseInt(roomId));
+            System.out.println("나갈 채팅방 id : " + chatRoom.getId());
+
+            user = chatRoom.getUserByUserId(myId);
+            System.out.println("나갈 유저 id : " + user.getUserId());
+
+            // chatRoom.exitUser(user);
+
+            // String exitMsg = message.replace("/&quit", "나갔습니다.");
+            // chatRoom.broadcast(exitMsg);
 
 
             //Todo hm 은 사용하지 않는 방향으로 고쳐준다.
@@ -232,6 +250,19 @@ class ChatThread extends Thread{
             try {
                 if(sock != null) {
                     user.getSock().close();
+                    chatRoom.exitUser(user);
+
+                    System.out.println("받은 메시지 : " + message);
+                    
+                    String exitMsg = message.replace("/&quit", myId + "(이)가 나갔습니다.");
+
+                    System.out.println("보낼 메시지 : " + exitMsg);
+                    //System.out.println("chatRoom 안의 인원수 : " + chatRoom.getUserSize() + " 명");
+
+                    if(chatRoom.getUserList() != null) {
+                        chatRoom.broadcast(exitMsg);
+                    }
+                   
                 }
             } catch (Exception e2) {
                 e2.printStackTrace();
