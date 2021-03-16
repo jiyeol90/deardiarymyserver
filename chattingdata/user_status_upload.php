@@ -11,7 +11,7 @@ $roomId = $_POST['roomId'];
 if ($conn)
 {
     //이미 참여했던 방인지 조회한다.
-    $sql_participate_in_status_update = "UPDATE participate_in SET user_status = 1 WHERE user_id = '$myId' AND room_id = '$roomId'";
+    $sql_participate_in_status_update = "UPDATE participate_in SET user_status = 1, exit_date = now() WHERE user_id = '$myId' AND room_id = '$roomId'";
     $participateResult = mysqli_query($conn, $sql_participate_in_status_update);
 
     if($participateResult) {

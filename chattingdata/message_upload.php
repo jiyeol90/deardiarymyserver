@@ -51,7 +51,9 @@ if ($conn)
             "to" => $target_token,
             "data" => array(
                 "title"   => $myId,
-                "message" => $content)
+                "message" => $content,
+                "contentType" => $contentType,
+                "receive" => $friendId) // 메시지를 받는 아이디 
                 ));
 
         print_r($data);

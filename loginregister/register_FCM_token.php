@@ -16,7 +16,16 @@
         $userTokenQuery = mysqli_query($conn, $sqlUpdateToken);
 
         if ($userTokenQuery){
-            echo "Token Success";
+
+            $sqlParticipateInit = "UPDATE participate_in SET user_status = 1, exit_date = now() WHERE user_id = '$myId'";
+            $userParticipateInit = mysqli_query($conn, $sqlParticipateInit);
+
+            if($userParticipateInit) {
+                echo "Token Success And Init Status";
+            } else {
+                echo "Token Success";
+            }
+
         } else {
             echo "Token Failed";
         }
