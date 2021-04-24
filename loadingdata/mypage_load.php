@@ -59,7 +59,17 @@ if ($conn)
         $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
         $upperPageArry['postCnt'] = $row['postCnt'];
-  
+
+
+    $sql_friend = "SELECT count(*) friendCnt FROM follow WHERE user_id = '$userId' and follow_status = 1";
+
+    $result = mysqli_query($conn, $sql_friend);
+    $rowCnt = mysqli_num_rows($result);
+
+    
+        $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+
+        $upperPageArry['friendCnt'] = $row['friendCnt'];
 
     //print_r(json_encode($cntArr, JSON_PRETTY_PRINT));
 

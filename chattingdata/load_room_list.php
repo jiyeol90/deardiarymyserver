@@ -12,8 +12,7 @@ $result_message;
 if ($conn)
 {
 
-    //이미 참여했던 방인지 조회한다.
-    //1. 먼저 나와 상대가 참여한 방을 조회한다. (나와 , 상대, 다른사람도 있는 방이 있다면 그 방도 조회된다.)
+    
     $sql_room_list = "SELECT 
 	                    t.room_id, t.user_id, t.content_type, t.content, t.created_date 
                         FROM (

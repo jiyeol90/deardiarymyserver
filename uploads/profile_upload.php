@@ -68,6 +68,8 @@ else
         'message' => "Please try Post Method"
     );
 
+    exit();
+
 }
 
 

@@ -35,7 +35,7 @@ if (isset($_FILES['image']['name']))
                     'message' => "File Uploaded",
                     'file_name' => $file_name,
                     'file_path' => $imgSrc,
-                    'fileUploa_dId' => $userId,
+                    'fileUploadId' => $userId,
                     'file_size' => $file_size,
                     'file_width' => $file_info[0],
                     'file_height' => $file_info[1]
